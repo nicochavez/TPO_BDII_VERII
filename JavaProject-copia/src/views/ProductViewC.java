@@ -1,7 +1,10 @@
 package views;
 
+import controladores.pedidos.ControladorCarritoBD;
+import controladores.views.ClienteViewController;
 import controladores.views.ProductListViewCController;
 import controladores.views.ProductViewCController;
+import modelo.pedidos.Item;
 import modelo.producto.Producto;
 
 import javax.swing.*;
@@ -60,7 +63,8 @@ public class ProductViewC extends JFrame{
         agregarAlCarritoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                Item item = new Item(producto, 1);
+                ControladorCarritoBD.addToCarrito(ClienteViewController.getCliente(), item);
             }
         });
     }
@@ -73,7 +77,7 @@ public class ProductViewC extends JFrame{
         double precio = 750;
         double descuento = 5;
 
-        Producto product = new Producto(nombre, desc, precio, "001", descuento);
+        Producto product = new Producto(nombre, desc, precio, 101, descuento);
 
         new ProductViewC(product).setVisible(true);
 

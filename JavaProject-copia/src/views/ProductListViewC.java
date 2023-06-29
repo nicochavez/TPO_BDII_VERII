@@ -1,9 +1,13 @@
 package views;
 
+import controladores.pedidos.ControladorCarritoBD;
 import controladores.producto.ControladorProductos;
+import controladores.producto.ControladorProductosBD;
+import controladores.views.CarritoViewController;
 import controladores.views.ClienteViewController;
 import controladores.views.ProductListViewCController;
 import controladores.views.ProductViewCController;
+import modelo.pedidos.Item;
 import modelo.producto.Producto;
 
 import javax.swing.*;
@@ -44,17 +48,11 @@ public class ProductListViewC extends JFrame {
 
 
 
-        DefaultTableModel modeloTabla = new DefaultTableModel(){
-
-            @Override
-            public boolean isCellEditable(int row, int column){
-                return false;
-            }
-        };
+        DefaultTableModel modeloTabla = new DefaultTableModel();
 
         productTable.setModel(modeloTabla);
 
-        List<Producto> productos = ControladorProductos.getProductos();
+        List<Producto> productos = ControladorProductosBD.getAllProducts();
 
 
         List<String> productNames = ProductListViewCController.getProductNames(productos);
@@ -69,7 +67,7 @@ public class ProductListViewC extends JFrame {
 
         for(Producto producto : productos){
 
-            Object[] fila = new Object[3];
+            Object[] fila = new Object[4];
             fila[0] = producto.getNombre();
             fila[1] = producto.getDescripcion();
             fila[2] = producto.getPrecio();
@@ -112,6 +110,35 @@ public class ProductListViewC extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 ProductListViewCController.productListView.setVisible(false);
                 ClienteViewController.clienteView.setVisible(true);
+            }
+        });
+
+
+        miCarritoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ProductListViewCController.productListView.setVisible(false);
+                CarritoViewController.createView(ClienteViewController.getCliente());
+                CarritoViewController.carritoView.setVisible(true);
+            }
+        });
+        agregarAlCarritoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                String strSelectedProduct = (String) comboProduct.getSelectedItem();
+                Producto selectedProduct = null;
+
+                int cantidad = Integer.parseInt(cantidadTextField.getText());
+
+                for(Producto product : productos){
+                    if(product.getNombre() == strSelectedProduct){
+                        selectedProduct = product;
+                    }
+                }
+                Item item = new Item(selectedProduct, cantidad);
+
+                ControladorCarritoBD.addToCarrito(ClienteViewController.getCliente(), item);
             }
         });
     }

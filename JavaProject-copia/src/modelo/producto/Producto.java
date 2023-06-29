@@ -7,11 +7,11 @@ public class Producto {
 	private String nombre;
 	private String descripcion;
 	private double precio;
-	private String id;
+	private double id;
 	private double descuento;
 	private Image imagen;
 
-	public Producto(String nombre, String descripcion, double precio, String id, double descuento) {
+	public Producto(String nombre, String descripcion, double precio, double id, double descuento) {
 		this.nombre = nombre;
 		this.descripcion = descripcion;
 		this.precio = precio;
@@ -43,11 +43,11 @@ public class Producto {
 		this.precio = precio;
 	}
 
-	public String getId() {
+	public double getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(double id) {
 		this.id = id;
 	}
 
