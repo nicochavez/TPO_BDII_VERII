@@ -25,7 +25,6 @@ public class ProductListViewO extends JFrame{
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1500,800);
         setLocationRelativeTo(null);
-        setVisible(true);
 
 
 

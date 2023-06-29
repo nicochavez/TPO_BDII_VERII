@@ -27,11 +27,10 @@ public class VentaView extends JFrame{
         setContentPane(VentaMain);
 
 
-        setTitle("Test");
+        setTitle("VentaView");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1500,800);
         setLocationRelativeTo(null);
-        setVisible(true);
 
 
 

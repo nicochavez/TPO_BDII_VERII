@@ -1,6 +1,13 @@
 package views;
 
+import controladores.views.ClientDataViewController;
+import controladores.views.ClientListViewController;
+import controladores.views.OperadorViewController;
+import modelo.usuario.Cliente;
+
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ClientDataView extends JFrame{
     private JPanel ClientDataMain;
@@ -32,20 +39,34 @@ public class ClientDataView extends JFrame{
     private JLabel CategL;
 
 
-    public ClientDataView(){
+    public ClientDataView(Cliente cliente){
 
         setContentPane(ClientDataMain);
 
 
-        setTitle("Test");
+        setTitle("ClientDataView");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1500,800);
         setLocationRelativeTo(null);
-        setVisible(true);
 
 
 
+        userNameF.setText(cliente.getCredentials().getUsername());
+        CodPostalF.setText(Integer.toString(cliente.getDireccion().getCodPostal()));
+        NumF.setText(Integer.toString(cliente.getDireccion().getNumero()));
+        CalleF.setText(cliente.getDireccion().getCalle());
+        ApellidoF.setText(cliente.getSurname());
+        NombreF.setText(cliente.getName());
+        DocF.setText(Integer.toString(cliente.getDni()));
 
+
+        volverButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ClientDataViewController.clientDataView.setVisible(false);
+                ClientListViewController.clientListView.setVisible(true);
+            }
+        });
     }
 
 

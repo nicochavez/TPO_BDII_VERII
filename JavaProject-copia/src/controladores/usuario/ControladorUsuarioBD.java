@@ -5,9 +5,13 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import controladores.Connect;
+import modelo.producto.Producto;
 import modelo.usuario.*;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ControladorUsuarioBD {
@@ -112,6 +116,50 @@ public class ControladorUsuarioBD {
                 user.getInteger("id"),
                 credenciales);
         return operador;
+    }
+
+
+    public static List<Cliente> getAllClients(){
+        try (MongoClient session = MongoClients.create("mongodb+srv://usuarioTPO:usuarioTPO1234@test.72xjhue.mongodb.net/?retryWrites=true&w=majority")){
+            MongoDatabase dataBase = session.getDatabase("TPOBD2");
+            System.out.println("Se entro a la BD");
+            MongoCollection<Document> userCollection = dataBase.getCollection("Usuarios");
+            System.out.println("Se agarró la colec");
+
+
+            List<Document> clientList = userCollection.find(new Document("id", 0)).into(new ArrayList<>());
+            List<Cliente> listCliente = new ArrayList<>();
+            for (Document prod : clientList){
+                listCliente.add(docToClient(prod));
+            }
+            return listCliente;
+        } catch (Exception e){
+            System.out.println("Error al acceder a los productos");
+            return null;
+        }
+
+    }
+
+
+    public static Cliente getClientByDNI(int DNI){
+        try (MongoClient session = MongoClients.create("mongodb+srv://usuarioTPO:usuarioTPO1234@test.72xjhue.mongodb.net/?retryWrites=true&w=majority")){
+            MongoDatabase dataBase = session.getDatabase("TPOBD2");
+            System.out.println("Se entro a la BD");
+            MongoCollection<Document> userCollection = dataBase.getCollection("Usuarios");
+            System.out.println("Se agarró la colec");
+
+
+            Document userFound = userCollection.find(new Document("dni",DNI)).first();
+
+            Cliente cliente = docToClient(userFound);
+
+            return cliente;
+        } catch (Exception e){
+            System.out.println("Error al acceder a los productos");
+            return null;
+        }
+
+
     }
 
 
