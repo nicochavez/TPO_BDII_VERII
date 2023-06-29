@@ -1,13 +1,11 @@
 package controladores.usuario;
 
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import controladores.Connect;
-import modelo.usuario.Cliente;
-import modelo.usuario.Credenciales;
-import modelo.usuario.Direccion;
-import modelo.usuario.Usuario;
+import modelo.usuario.*;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -15,17 +13,14 @@ import org.bson.types.ObjectId;
 public class ControladorUsuarioBD {
 
 
-    public ControladorUsuarioBD(){
-
-    }
-
     public static void signUp(Cliente usuario){
-        Connect connection = new Connect();
-        MongoClient session = connection.startMongo();
-        try {
-            MongoDatabase sampleTrainingDB = session.getDatabase("Test");
-            MongoCollection<Document> usersCollection = sampleTrainingDB.getCollection("users");
-            usersCollection.insertOne(generateDocument(usuario));
+        try (MongoClient session = MongoClients.create("mongodb+srv://usuarioTPO:usuarioTPO1234@test.72xjhue.mongodb.net/?retryWrites=true&w=majority")){
+            MongoDatabase dataBase = session.getDatabase("TPOBD2");
+            System.out.println("Se entro a la BD");
+            MongoCollection<Document> usersCollection = dataBase.getCollection("Usuarios");
+            System.out.println("Se agarró la colec");
+            usersCollection.insertOne((Document) generateDocument(usuario));
+            System.out.println("Se incertó el usuario");
 
         } catch (Exception e){
             System.out.println("We can't add this user to database");
@@ -34,29 +29,50 @@ public class ControladorUsuarioBD {
     }
 
     private static Document generateDocument(Cliente usuario){
-        Document creds = new Document("userName", usuario.getCredentials().getUsername()).append("password", usuario.getCredentials().getPassword());
-        Document direc = new Document("calle", usuario.getDireccion().getCalle()).append("numero", usuario.getDireccion().getNumero()).append("CodPostal", usuario.getDireccion().getCodPostal());
-        Document document =  new Document("_id", new ObjectId());
-        document.append("name", usuario.getName());
-        document.append("surname", usuario.getSurname());
-        document.append("dni", usuario.getDni());
-        document.append("id", usuario.getId());
-        document.append("credenciales", creds);
-        document.append("dirección", direc);
-        return document;
+
+        String nombre = usuario.getName();
+        String apellido = usuario.getSurname();
+        int dni = usuario.getDni();
+        int id = usuario.getId();
+        Credenciales credenciales = usuario.getCredentials();
+        Direccion direccion = usuario.getDireccion();
+        String userName = credenciales.getUsername();
+        String pass = credenciales.getPassword();
+        String calle = direccion.getCalle();
+        int num = direccion.getNumero();
+        int codP = direccion.getCodPostal();
+
+        Document creds = new Document("userName", userName).append("password", pass);
+        Document direc = new Document("calle", calle).append("numero", num)
+                .append("CodPostal", codP);
+
+       return new Document("_id", new ObjectId()).append("nombre", nombre)
+               .append("apellido", apellido)
+               .append("dni", dni)
+               .append("id", id)
+               .append("credenciales", creds)
+               .append("direccion", direc);
     }
 
     public static Usuario logIn(Credenciales creds){
-        Connect connection = new Connect();
-        MongoClient session = connection.startMongo();
-        try {
-            MongoDatabase sampleTrainingDB = session.getDatabase("Test");
-            MongoCollection<Document> usersCollection = sampleTrainingDB.getCollection("users");
+        try (MongoClient session = MongoClients.create("mongodb+srv://usuarioTPO:usuarioTPO1234@test.72xjhue.mongodb.net/?retryWrites=true&w=majority")){
+            MongoDatabase dataBase = session.getDatabase("TPOBD2");
+            MongoCollection<Document> usersCollection = dataBase.getCollection("Usuarios");
             Document cred = new Document("userName", creds.getUsername()).append("password", creds.getPassword());
             Document userFound = usersCollection.find(new Document("credenciales",cred)).first();
 
+            Usuario user = null;
 
-            Usuario user = docToUser(userFound);
+            if(!(userFound==null)) {
+                int id = userFound.getInteger("id");
+                if(id == 0) {
+                    System.out.println("usuario encontrado");
+                    user = docToClient(userFound);
+                } else if (id == 1){
+                    System.out.println("operador encontrado");
+                    user = docToOperator(userFound);
+                }
+            }
 
             return user;
         } catch (Exception e){
@@ -66,59 +82,89 @@ public class ControladorUsuarioBD {
 
     }
 
-    private static Cliente docToUser(Document user){
+    private static Cliente docToClient(Document user){
         Document credencialesDoc = (Document) user.get("credenciales");
         Credenciales credenciales = new Credenciales(credencialesDoc.getString("userName"),
                 credencialesDoc.getString("password"));
 
         Document direccionDoc = (Document) user.get("direccion");
-        Direccion direccion = new Direccion(direccionDoc.getString("calle"), direccionDoc.getInteger("numero"),
-                direccionDoc.getInteger("codPostal"));
 
-        Cliente cliente = new Cliente(user.getString("name"),
-                user.getString("surname"),
+        Direccion direccion = new Direccion(direccionDoc.getString("calle"), direccionDoc.getInteger("numero"),
+                direccionDoc.getInteger("CodPostal"));
+
+        Cliente cliente = new Cliente(user.getString("nombre"),
+                user.getString("apellido"),
                 user.getInteger("dni"),
                 user.getInteger("id"),
                 direccion,
-
-
-
                 credenciales);
         return cliente;
+    }
 
+    private static Operador docToOperator(Document user){
+        Document credencialesDoc = (Document) user.get("credenciales");
+        Credenciales credenciales = new Credenciales(credencialesDoc.getString("userName"),
+                credencialesDoc.getString("password"));
 
-
+        Operador operador = new Operador(user.getString("nombre"),
+                user.getString("apellido"),
+                user.getInteger("dni"),
+                user.getInteger("id"),
+                credenciales);
+        return operador;
     }
 
 
-    /*Document cred = new Document("userName", "krato495").append("password", "pepito1234");
+    public static void main(String[] args) {
 
+        int id = 1;
+        String nombre = "Marcos";
+        String apellido = "Hernandez";
+        int dni = 22111333;
 
-    Document user1 = usuarios.find(new Document("credenciales",cred)).first();
-
-    System.out.println("El usuario que corresponde a esas credenciales es: " + user1.get("nombre"));*/
-
-
-
-
-
-
+        Credenciales creds = new Credenciales("ma123", "ma1234");
+        Direccion direc = new Direccion("Independencia", 1214, 124);
 
 
 
+        Usuario usuario = new Operador(nombre,apellido, dni, id, creds);
+
+        System.out.println(usuario.getName());
+
+        Document cred = new Document("userName", "ma123").append("password", "ma1234");
+
+
+        Document operador = new Document("_id", new ObjectId()).append("nombre", nombre)
+                .append("apellido", apellido)
+                .append("dni", dni)
+                .append("id", id)
+                .append("credenciales", cred);
+
+
+
+        try (MongoClient session = MongoClients.create("mongodb+srv://usuarioTPO:usuarioTPO1234@test.72xjhue.mongodb.net/?retryWrites=true&w=majority")){
+            MongoDatabase dataBase = session.getDatabase("TPOBD2");
+            System.out.println("Se entro a la BD");
+            MongoCollection<Document> usersCollection = dataBase.getCollection("Usuarios");
+            System.out.println("Se agarró la colec");
+            usersCollection.insertOne(operador);
+            System.out.println("Se incertó el usuario");
+
+        }
+
+
+
+
+
+        //logIn(creds);
 
 
 
 
 
 
-
-
-
-
-
-
-
-
+        }
 
 }
+
+
