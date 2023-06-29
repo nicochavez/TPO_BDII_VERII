@@ -22,16 +22,6 @@ public class CarritoViewController {
 
 
 
-    public static Carrito getCarrito(){
-
-        Carrito carrito = null;
-
-
-
-
-        return carrito;
-    }
-
 
 
 }

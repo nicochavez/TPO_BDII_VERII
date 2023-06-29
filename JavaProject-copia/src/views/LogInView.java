@@ -1,6 +1,7 @@
 package views;
 
 import controladores.views.*;
+import modelo.usuario.Cliente;
 import modelo.usuario.Credenciales;
 import modelo.usuario.Usuario;
 
@@ -63,7 +64,9 @@ public class LogInView extends JFrame {
                     ClienteViewController.startClientView();
                 } else if (usuario.getId()==1) {
                     OperadorViewController.setOperador(usuario);
-                    OperadorViewController.startOperadorView();
+                    LogInViewController.logView.setVisible(false);
+                    OperadorViewController.createView();
+                    OperadorViewController.operadorView.setVisible(true);
                 }
             }
         });

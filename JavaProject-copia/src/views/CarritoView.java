@@ -1,9 +1,14 @@
 package views;
 
+import controladores.pedidos.ControladorCarritoBD;
+import controladores.producto.ControladorProductosBD;
 import controladores.views.CarritoViewController;
 import controladores.views.ClienteViewController;
+import controladores.views.PagoVistaController;
 import modelo.pedidos.Item;
+import modelo.pedidos.Pedido;
 import modelo.producto.Producto;
+import modelo.usuario.Cliente;
 import modelo.usuario.Usuario;
 import modelo.pedidos.Carrito;
 
@@ -11,6 +16,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CarritoView extends JFrame{
@@ -26,6 +32,9 @@ public class CarritoView extends JFrame{
     private JPanel precioTotal;
     private JTextField precioTotalF;
     private JLabel precioTotalL;
+    private JPanel removerCarrito;
+    private JComboBox comboRemove;
+    private JButton removerDelCarritoButton;
 
 
     public CarritoView(Usuario cliente){
@@ -37,7 +46,6 @@ public class CarritoView extends JFrame{
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1500,800);
         setLocationRelativeTo(null);
-        setVisible(true);
 
 
         DefaultTableModel modeloTabla = new DefaultTableModel();
@@ -46,7 +54,7 @@ public class CarritoView extends JFrame{
 
 
 
-        Carrito carrito = CarritoViewController.getCarrito();
+        Carrito carrito = ControladorCarritoBD.getCarrito(ClienteViewController.getCliente());
 
 
         List<Item> items = carrito.getProductos();
@@ -58,11 +66,26 @@ public class CarritoView extends JFrame{
         modeloTabla.setColumnIdentifiers(titulos);
 
 
+        List<String> nombresProd = new ArrayList<>();
+
+        for (Item i : items){
+
+            nombresProd.add(i.getProducto().getNombre());
+        }
+
+        comboRemove.addItem("-Seleccionar-");
+
+        for(String name : nombresProd){
+            comboRemove.addItem(name);
+        }
+
+
+
 
         for(Item i: items){
-            Object[] fila = new Object[2];
+            Object[] fila = new Object[3];
 
-            fila[0] = i.getProducto();
+            fila[0] = i.getProducto().getNombre();
             fila[1] = i.getCantidad();
 
             double precio = i.getProducto().getPrecio();
@@ -76,6 +99,18 @@ public class CarritoView extends JFrame{
             modeloTabla.addRow(fila);
 
         }
+
+        double precioF = 0;
+
+        for(Item i: items){
+            double precio = ((i.getProducto().getPrecio())-(i.getProducto().getDescuento()));
+            precioF = precioF + precio;
+        }
+
+        String pf = Double.toString(precioF);
+
+
+        precioTotalF.setText(pf);
 
 
 
@@ -91,12 +126,49 @@ public class CarritoView extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                ControladorCarritoBD.removeCarrito();
+
+                for(int i = 1; i< modeloTabla.getRowCount(); i++){
+                    Producto producto = ControladorProductosBD.getProductByName((String) modeloTabla.getValueAt(i, 0));
+                    int cantidad = (int)modeloTabla.getValueAt(i, 1);
+
+                    Item item = new Item(producto, cantidad);
+                    ControladorCarritoBD.addToCarrito(ClienteViewController.getCliente(), item);
+                }
+
             }
         });
 
         pedirButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                Cliente cliente1 = (Cliente) ClienteViewController.getCliente();
+                Carrito carr = ControladorCarritoBD.getCarrito(cliente1);
+                List<Item> prods = carr.getProductos();
+
+                double precioF = 0;
+
+                for(Item i: items){
+                    double precio = ((i.getProducto().getPrecio())-(i.getProducto().getDescuento()));
+                    precioF = precioF + precio;
+                }
+
+                double impuestos = precioF * 0.21;
+
+                Pedido pedido = new Pedido(prods, cliente1, precioF, impuestos, cliente1.getDni());
+
+                PagoVistaController.createView(pedido);
+                CarritoViewController.carritoView.setVisible(false);
+                PagoVistaController.pagoVista.setVisible(true);
+            }
+        });
+        removerDelCarritoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                String strSelectedProduct = (String) comboRemove.getSelectedItem();
+
+                ControladorCarritoBD.removeItemCarrito(strSelectedProduct);
 
             }
         });

@@ -54,7 +54,7 @@ public class SignUpView extends JFrame{
 
         setTitle("SignUpView");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(350,250);
+        setSize(1500,800);
         setLocationRelativeTo(null);
 
 

@@ -8,7 +8,7 @@ public class OperadorViewController {
 
     private static Usuario operador;
 
-    public static OperadorView operadorView = new OperadorView();
+    public static OperadorView operadorView;
 
 
     public static Usuario getOperador() {
@@ -19,13 +19,14 @@ public class OperadorViewController {
         OperadorViewController.operador = operador;
     }
 
-
-
-
-    public static void startOperadorView(){
-        LogInViewController.logView.setVisible(false);
-        operadorView.setVisible(false);
+    public static void createView(){
+        operadorView = new OperadorView();
     }
+
+
+
+
+
 
 
 }

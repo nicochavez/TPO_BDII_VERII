@@ -9,26 +9,9 @@ public class SignUpViewController {
 
 
 
-
-
-
-
-
     public static void createView(){
         signUpView = new SignUpView();
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

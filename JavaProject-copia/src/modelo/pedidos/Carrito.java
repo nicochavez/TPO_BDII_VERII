@@ -11,9 +11,8 @@ public class Carrito {
 	private Usuario usuario;
 
 
-	public Carrito(List<Item> productos, int version, Usuario usuario) {
+	public Carrito(List<Item> productos, Usuario usuario) {
 		this.productos = productos;
-		this.version = version;
 		this.usuario = usuario;
 	}
 
